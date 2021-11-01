@@ -2,6 +2,26 @@ language: node_js
 node_js:
   - 12
 before_script:
-  - echo before_script 
+  # install tools
+  - curl https://get.okteto.com -sSfL | sh
+  - curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+  - chmod +x ./kubectl
+  - sudo mv ./kubectl /usr/local/bin/kubectl
+# check all tools
+  - kubectl version --client
+  - docker --version
+  - okteto version
+
 script:
-  - echo holascript
+  # login docker and okteto
+  - docker login -u sepasoporteit -p @cicatriz22puntos@
+  - okteto login --token 1K7dwoY8u2P9yrXptNHRN5JeKgA8OYnOKywIIMRiAIYYGqkz
+  # build and push app
+  - docker build app/Dockerfile -t sepasoporteit/web:latest
+  - docker push sepasoporteit/web:latest
+  # set namespace okteto
+  - cd app
+  - okteto namespace
+  # apply deploy
+  #- kubectl apply -f test.yaml
+  - kubectl rollout restart deploy
