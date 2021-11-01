@@ -1,0 +1,17 @@
+name: keen-deployment
+image: okteto/node:14
+command: bash
+sync:
+- .:/usr/src/app
+forward:
+- 9229:9229
+- 8080:80
+resources:
+  limits:
+    cpu: "1"
+    memory: "3221225472"
+services:
+  - name: worker
+    command: ["celery", "worker", "-A", "myproject.celeryconf", "-Q", "default", "-n", "default@%h"]
+    sync:
+      - .:/app
